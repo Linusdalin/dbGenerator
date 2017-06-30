@@ -10,6 +10,8 @@ import java.util.Properties;
  *
  *          Generated Property handler
  *
+ *          This is a generated file
+ *
  *
  */
 public class PropertyManager {
@@ -59,7 +61,7 @@ public class PropertyManager {
     }
 
     // Generated property getter
-    public String getDBConnection(){
+    public String getdbConnection(){
 
         if(dbConnection == null)
             dbConnection = loadString("dbConnection");
@@ -72,7 +74,7 @@ public class PropertyManager {
 
 
     // Generated property getter
-    public String getDBUser(){
+    public String getdbUser(){
 
         if(dbUser == null)
             dbUser = loadString("dbUser");
@@ -84,7 +86,7 @@ public class PropertyManager {
     }
 
     // Generated property getter
-    public String getDBPassword(){
+    public String getdbPassword(){
 
         if(dbPassword == null)
             dbPassword = loadString("dbPwd");
@@ -97,3 +99,7 @@ public class PropertyManager {
 
 
 }
+/* Permanent content after this point (Do not remove this line !!!) */
+/* Permanent content after this point (Do not remove this line !!!) */
+/* Permanent content after this point (Do not remove this line !!!) */
+/* Permanent content after this point (Do not remove this line !!!) */

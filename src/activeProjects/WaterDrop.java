@@ -5,6 +5,9 @@ import databaseModel.DataTable;
 import databaseModel.DataType;
 import databaseModel.Project;
 import modules.ScheduleModule;
+import modules.UserModule;
+import parameter.ParameterType;
+import parameter.SystemParameter;
 import service.*;
 
 /****************************************************************************
@@ -20,7 +23,6 @@ public class WaterDrop extends Project {
         new WaterDrop();
 
     }
-
     private static final DataTable[] tables = {
 
             new DataTable("Outcome", "campaignData", "Extracted data for a campaign")
@@ -51,6 +53,7 @@ public class WaterDrop extends Project {
 
                     .withDataElement(new DataElement(DataType.TEXT, "name"))
                     .withDataElement(new DataElement(DataType.STRING, "facebook_account_id").setIndex())
+                    .withDataElement(new DataElement(DataType.BOOLEAN, "rw"))
                     .withDataElement(new DataElement(DataType.LONG_TEXT, "description")),
 
             new DataTable("Campaign", "campaignData", "The different campaigns")
@@ -87,11 +90,6 @@ public class WaterDrop extends Project {
                     .withDataElement(new DataElement(DataType.TEXT, "creative_type"))
                     .withDataElement(new DataElement(DataType.TEXT, "facebook_creative_id")),
 
-    /*
-   ALTER table creative ADD COLUMN call_to_action varchar(45) DEFAULT NULL;
-ALTER table creative ADD COLUMN creative_type varchar(45) DEFAULT NULL;
-ALTER table creative ADD COLUMN facebook_creative_id varchar(40) DEFAULT NULL;
-    */
 
             new DataTable("StatResult", "campaignData", "Calculated stats")
 
@@ -140,34 +138,77 @@ ALTER table creative ADD COLUMN facebook_creative_id varchar(40) DEFAULT NULL;
             new DataTable("RandomizedAdSet", "facebook", "Analysis")
 
                     .withDataElement(new DataElement(DataType.TEXT, "name"))
+                    .withDataElement(new DataElement(DataType.INT, "type"))
+                    .withDataElement(new DataElement(DataType.INT, "baseType"))
                     .withDataElement(new DataElement(DataType.TEXT, "AdSetId"))
-                    .withDataElement(new DataElement(DataType.TEXT, "campaign"))
+                    .withDataElement(new DataElement(DataType.INT, "account"))
+                            //.withDataElement(new DataElement(DataType.INT, "campaign"))
+                    .withDataElement(new DataElement(DataType.TIMESTAMP, "created"))
+                    .withDataElement(new DataElement(DataType.TIMESTAMP, "reset"))
+                    .withDataElement(new DataElement(DataType.TIMESTAMP, "updated"))
                     .withDataElement(new DataElement(DataType.BOOLEAN, "active"))
                     .withDataElement(new DataElement(DataType.INT, "cycleId"))
                     .withDataElement(new DataElement(DataType.INT, "participations")),
 
-    new DataTable("Randomization", "facebook", "Analysis")
+            new DataTable("Randomization", "facebook", "Analysis")
 
-                    //.withDataElement(new DataElement(DataType.INT, "account"))
                     .withDataElement(new DataElement(DataType.INT, "adSet"))
                     .withDataElement(new DataElement(DataType.TEXT, "AdId"))
                     .withDataElement(new DataElement(DataType.TEXT, "adName"))
+                    .withDataElement(new DataElement(DataType.TEXT, "creative"))
                     .withDataElement(new DataElement(DataType.INT, "rating"))
+                    .withDataElement(new DataElement(DataType.INT, "exposure"))
                     .withDataElement(new DataElement(DataType.TIMESTAMP, "lastUpdate"))
                     .withDataElement(new DataElement(DataType.BOOLEAN, "state"))
                     .withDataElement(new DataElement(DataType.BOOLEAN, "included")),
 
-            new DataTable("ActiveAccount", "accountManagement", "Active account for a user")
+            new DataTable("RandomizationQueue", "randomization", "Randomization jobs scheduled")
+
+                    .withDataElement(new DataElement(DataType.TIMESTAMP, "next"))
+                    .withDataElement(new DataElement(DataType.INT, "account"))
+                    .withDataElement(new DataElement(DataType.TEXT, "facebookAdSetId"))
+                    .withDataElement(new DataElement(DataType.TEXT, "adsetName"))
+                    .withDataElement(new DataElement(DataType.BOOLEAN, "executed")),
+
+            new DataTable("AccountAccess", "accountManagement", "Access to an account for a user")
 
                     .withDataElement(new DataElement(DataType.INT, "user"))
                     .withDataElement(new DataElement(DataType.INT, "account"))
+                    .withDataElement(new DataElement(DataType.STRING, "role")),           // guest, user, admin
+
+            new DataTable("SystemParameter", "system", "system parameters")
+
+                    .withDataElement(new DataElement(DataType.STRING, "parameter"))
+                    .withDataElement(new DataElement(DataType.STRING, "value")),
+
+            new DataTable("ActiveAccount", "accountManagement", "Active account for a user")
+
+                    .withDataElement(new DataElement(DataType.INT, "user"))
+                    .withDataElement(new DataElement(DataType.INT, "account")),
+
+            new DataTable("ActionLog", "randomization", "Action Log log")
+
+                    .withDataElement(new DataElement(DataType.STRING, "action"))
+                    .withDataElement(new DataElement(DataType.STRING, "source").withComment("The source of the log entry (normally manually or scheduled)"))
+                    .withDataElement(new DataElement(DataType.INT, "type"))
+                    .withDataElement(new DataElement(DataType.INT, "account"))
+                    .withDataElement(new DataElement(DataType.INT, "adset"))
+                    .withDataElement(new DataElement(DataType.STRING, "facebook_account"))
+                    .withDataElement(new DataElement(DataType.TIMESTAMP, "timestamp"))
+                    .withDataElement(new DataElement(DataType.LONG_TEXT, "text"))
+                    .withOrderByColumn("timestamp")
+
 
     };
 
+
+
+
+
     private static final ServiceInterface[] services = {
 
-            new PukkaService("Campaigns", "services/waterDrop")
-                    //.withLoginValidation()
+            new RestService("Campaigns", "services/waterDrop")
+                    .withLoginValidation()
                     .withGetParameter(new MandatoryParameter(DataType.STRING, "period"))
                     .withGetParameter(new MandatoryParameter(DataType.STRING, "primaryBreakdown"))
                     .withGetParameter(new MandatoryParameter(DataType.STRING, "secondaryBreakdown"))
@@ -178,8 +219,8 @@ ALTER table creative ADD COLUMN facebook_creative_id varchar(40) DEFAULT NULL;
                     .withInclude("score")
                     .withInclude("stats"),
 
-            new PukkaService("AdSet", "services/waterDrop")
-                    //.withLoginValidation()
+            new RestService("AdSet", "services/waterDrop")
+                    .withLoginValidation()
                     .withGetParameter(new MandatoryParameter(DataType.STRING, "period"))
                     .withGetParameter(new MandatoryParameter(DataType.STRING, "primaryBreakdown"))
                     .withGetParameter(new MandatoryParameter(DataType.STRING, "secondaryBreakdown"))
@@ -192,8 +233,8 @@ ALTER table creative ADD COLUMN facebook_creative_id varchar(40) DEFAULT NULL;
 
 
 
-            new PukkaService("Ads", "services/waterDrop")
-                    //.withLoginValidation()
+            new RestService("Ads", "services/waterDrop")
+                    .withLoginValidation()
                     .withGetParameter(new MandatoryParameter(DataType.STRING, "period"))
                     .withGetParameter(new MandatoryParameter(DataType.STRING, "primaryBreakdown"))
                     .withGetParameter(new MandatoryParameter(DataType.STRING, "secondaryBreakdown"))
@@ -205,64 +246,117 @@ ALTER table creative ADD COLUMN facebook_creative_id varchar(40) DEFAULT NULL;
                     .withInclude("stats"),
 
             new SingleResultService("Analysis", "services/waterDrop")
-                    //.withLoginValidation()
+                    .withLoginValidation()
                     .withGetParameter(new MandatoryParameter(DataType.STRING, "period"))
                     .withGetParameter(new MandatoryParameter(DataType.INT, "account"))
                             //.withGetParameter(new MandatoryParameter(DataType.STRING, "breakdown"))
                     .withInclude("campaignData")
                     .withInclude("breakdown")
                     .withInclude("score")
-                    .withInclude("testRandomization"),
+                    .withInclude("randomization"),
 
-            new PukkaService("Admin", "services/waterDrop")
-                    //.withLoginValidation()
+            new RestService("Admin", "services/waterDrop")
+                    .withLoginValidation()
                     .withGetParameter(new MandatoryParameter(DataType.STRING, "command"))
                     .withGetParameter(new OptionalParameter(DataType.STRING, "value"))
                     .withInclude("campaignData"),
 
-            new PukkaService("Randomization", "services/waterDrop")
-                    //.withLoginValidation()
+            new RestService("Randomization", "services/waterDrop")
+                    .withLoginValidation()
+                    .withRWRequirement()
                     .withGetParameter(new MandatoryParameter(DataType.INT, "account"))
+                    .withPostParameter(new MandatoryParameter(DataType.TEXT, "action"))
+                    //.withPostParameter(new OptionalParameter(DataType.TEXT, "id"))
                     .withInclude("campaignData")
-                    .withInclude("testRandomization")
+                    .withInclude("randomization")
+                    .withInclude("scheduler")
                     .withInclude("facebook"),
 
-            new PukkaService("Stat", "services/waterDrop")
+            new SingleResultService("Update", "services/waterDrop")
+                    .withLoginValidation()
                     .withGetParameter(new MandatoryParameter(DataType.INT, "account"))
-            //.withLoginValidation()
+                    .withGetParameter(new OptionalParameter(DataType.BOOLEAN, "newCycle"))
+                    .withInclude("campaignData")
+                    .withInclude("randomization")
+                    .withInclude("facebook")
             ,
 
-            new PukkaService("Result", "services/waterDrop")
+            new RestService("Stat", "services/waterDrop")
                     .withGetParameter(new MandatoryParameter(DataType.INT, "account"))
-            //.withLoginValidation()
+                    .withLoginValidation()
             ,
 
-            new PukkaService("Competition", "services/waterDrop")
-            //.withLoginValidation()
+            new RestService("RandomizedAdSet", "services/waterDrop")
+                    .withGetParameter(new MandatoryParameter(DataType.INT, "account"))
+                    .withLoginValidation()
+            ,
+
+
+            new RestService("Result", "services/waterDrop")
+                    .withGetParameter(new MandatoryParameter(DataType.INT, "account"))
+                    .withLoginValidation()
+            ,
+
+            new RestService("Competition", "services/waterDrop")
+                    .withLoginValidation()
                     .withComment("Competition service retreives all competitions")
                     .withGetParameter(new MandatoryParameter(DataType.INT, "account"))
                     .withInclude("campaignData")
             ,
 
-            new PukkaService("Account", "services/waterDrop")
-                    //.withLoginValidation()
+            new RestService("Account", "services/waterDrop")
+                    .withLoginValidation()
+                    .withPostParameter(new OptionalParameter(DataType.STRING, "name"))
+                    .withPostParameter(new OptionalParameter(DataType.STRING, "facebookAccount"))
+                    .withPostParameter(new OptionalParameter(DataType.BOOLEAN, "active"))
                     .withInclude("campaignData")
+                    .withInclude("accountManagement")
+                    .withInclude("userManagement")
             ,
+            new SingleActionService("AddUser", "services/waterDrop")
+                    .withLoginValidation()
+                    .withPostParameter(new MandatoryParameter(DataType.STRING, "email"))
+                    .withGetParameter(new MandatoryParameter(DataType.INT, "account"))
+                    .withInclude("campaignData")
+                    .withInclude("userManagement")
+                    .withInclude("accountManagement")
+            ,
+
+            new RestService("ActionLog", "services/waterDrop")
+                    .withLoginValidation()
+                    .withGetParameter(new MandatoryParameter(DataType.INT, "account"))
+                    .withGetParameter(new OptionalParameter(DataType.INT, "adset"))
+                    .withInclude("userManagement")
+                    .withInclude("randomization")
+
 
 
     };
 
+    private static final SystemParameter[] parameters = {
+
+            new SystemParameter("dbPwd", ParameterType.String, "noPassword"),
+            new SystemParameter("dbUser", ParameterType.String, "noPassword"),
+            new SystemParameter("dbConnection", ParameterType.String, "jdbc:mysql://localhost:3306/no DB Set"),
+            new SystemParameter("APP_SECRET", ParameterType.String, "no secret key"),
+            new SystemParameter("ACCESS_TOKEN", ParameterType.String, "no token"),
+    };
 
     public WaterDrop(){
 
-        super("waterdrop", "C:\\Users\\Linus\\Documents\\GitHub\\WaterDrop\\src", "commons");
+        super("WaterDrop", "C:\\Users\\Linus\\Documents\\GitHub\\WaterDrop\\src", "commons");
 
         withDatabase("C:\\Users\\Linus\\Documents\\GitHub\\WaterDrop\\scripts", "water_drop");
         withServiceLayer("C:\\Users\\Linus\\Documents\\GitHub\\WaterDropService\\src");
         withTestDirectory("test");
         withTables(tables);
         withServices(services);
+        withParameters(parameters);
+
+        // Adding standard modules
         withModule(new ScheduleModule());
+        withModule(new UserModule( ));
+
         // Generate the actual files
         generate();
 

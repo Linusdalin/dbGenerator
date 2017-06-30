@@ -21,6 +21,7 @@ abstract class GenericService extends JavaCodeComponent implements ServiceInterf
     protected String comment = "";
 
     protected boolean loggedIn = false;
+    protected boolean rwAccess = false;
     protected List<ParameterInterface> postParameters = new ArrayList<>();
     protected List<ParameterInterface> getParameters = new ArrayList<>();
     protected List<String> includeDirectories = new ArrayList<>();
@@ -51,6 +52,11 @@ abstract class GenericService extends JavaCodeComponent implements ServiceInterf
 
     public ServiceInterface withLoginValidation() {
         this.loggedIn = true;
+        return this;
+    }
+
+    public ServiceInterface withRWRequirement() {
+        this.rwAccess = true;
         return this;
     }
 
@@ -126,6 +132,7 @@ abstract class GenericService extends JavaCodeComponent implements ServiceInterf
         includePackages.append("import java.io.IOException;\n");
         includePackages.append("import java.sql.*;\n");
         includePackages.append("import java.util.*;\n\n");
+        includePackages.append("import exceptionHandling.*;\n\n");
 
         for (String directory : includeDirectories) {
             includePackages.append("import " + directory.replaceAll("/", ".") + ".*;\n");

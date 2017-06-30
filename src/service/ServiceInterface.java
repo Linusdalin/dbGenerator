@@ -11,11 +11,13 @@ public interface ServiceInterface {
 
     ServiceInterface withPostParameter(ParameterInterface parameter);
     ServiceInterface withGetParameter(ParameterInterface parameter);
-    String generateServiceClass(String corePackage);
+    String generateServiceClass(String projectName, String corePackage);
 
     public String getPackagePath();
     public String getName();
     public ServiceInterface withLoginValidation();
+    public ServiceInterface withRWRequirement();
+    public ServiceInterface withComment(String comment);
 
     public ServiceInterface withInclude(String includeDirectory);
 

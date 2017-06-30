@@ -22,6 +22,7 @@ public abstract class GenericModule implements ModuleInterface {
     private List<DataTable> moduleTables = new ArrayList<>();
     private List<StaticFile> moduleFiles = new ArrayList<>();    // TODO: Not implemented module files
 
+
     GenericModule(ServiceInterface[] services, DataTable[] tables, StaticFile[] files){
 
         Collections.addAll(moduleServices, services);

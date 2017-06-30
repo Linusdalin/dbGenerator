@@ -17,9 +17,10 @@ public class CommonsTests extends CommonTest{
     @Test
     public void credentialsTest(){
 
-        Credentials credentials = new Credentials(1, 2);
+        Credentials credentials = new Credentials(1, 2, "Admin");
         assertVerbose("Credentials contains values", credentials.getUser(), is( 1 ));
         assertVerbose("Credentials contains values", credentials.getOrganisation(), is( 2 ));
+        assertVerbose("Credentials contains role", credentials.getRole(), is( "Admin" ));
     }
 
 }

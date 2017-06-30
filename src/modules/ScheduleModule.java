@@ -3,8 +3,8 @@ package modules;
 import databaseModel.DataElement;
 import databaseModel.DataTable;
 import databaseModel.DataType;
-import service.MandatoryParameter;
-import service.PukkaService;
+import service.OptionalParameter;
+import service.RestService;
 import service.ServiceInterface;
 
 /********************************************************************
@@ -17,17 +17,17 @@ import service.ServiceInterface;
 
 public class ScheduleModule extends GenericModule implements ModuleInterface {
 
+    private static final String targetPackage = "scheduler";
+
     private static final ServiceInterface[] services = {
 
-        new PukkaService("Schedule", "services/scheduler")
+        new RestService("Schedule", "services/scheduler")
                 //.withLoginValidation()
-                .withGetParameter(new MandatoryParameter(DataType.INT, "account"))
-                .withPostParameter(new MandatoryParameter(DataType.INT, "account"))
                 .withInclude("scheduler"),
 
-        new PukkaService("TaskLog", "services/scheduler")
+        new RestService("TaskLog", "services/scheduler")
                 //.withLoginValidation()
-                .withGetParameter(new MandatoryParameter(DataType.INT, "account"))
+                .withGetParameter(new OptionalParameter(DataType.STRING, "filter"))
                 .withInclude("scheduler")
 
 
@@ -35,20 +35,23 @@ public class ScheduleModule extends GenericModule implements ModuleInterface {
 
     private static final DataTable[] tables = {
 
-        new DataTable("Task", "scheduler", "List of all active scheduled tasks")
+        new DataTable("Task", targetPackage, "List of all active scheduled tasks")
 
                 .withDataElement(new DataElement(DataType.STRING, "name"))
-                .withDataElement(new DataElement(DataType.INT, "account"))
-                .withDataElement(new DataElement(DataType.STRING, "className"))
+                .withDataElement(new DataElement(DataType.TEXT, "className"))
                 .withDataElement(new DataElement(DataType.STRING, "cronSchedule"))
                 .withDataElement(new DataElement(DataType.BOOLEAN, "isScheduled"))
                 .withDataElement(new DataElement(DataType.TIMESTAMP, "lastChange"))
                 .withOrderByColumn("lastChange"),
 
-        new DataTable("TaskLog", "scheduler", "Schedule log")
+        new DataTable("TaskLog", targetPackage, "Schedule log")
 
                 .withDataElement(new DataElement(DataType.STRING, "taskName"))
-                .withDataElement(new DataElement(DataType.INT, "account"))
+                .withDataElement(new DataElement(DataType.STRING, "source").withComment("The source of the log entry (normally manually or scheduled)"))
+                .withDataElement(new DataElement(DataType.STRING, "action"))
+                .withDataElement(new DataElement(DataType.INT, "level"))
+                .withDataElement(new DataElement(DataType.STRING, "category1"))
+                .withDataElement(new DataElement(DataType.STRING, "category2"))
                 .withDataElement(new DataElement(DataType.TIMESTAMP, "timestamp"))
                 .withDataElement(new DataElement(DataType.STRING, "outcome"))
                 .withDataElement(new DataElement(DataType.LONG_TEXT, "text"))
@@ -66,7 +69,7 @@ public class ScheduleModule extends GenericModule implements ModuleInterface {
     };
 
 
-    public ScheduleModule(){
+    public ScheduleModule( ){
 
         super(services, tables, files);
     }

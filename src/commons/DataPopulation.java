@@ -1,5 +1,6 @@
 package commons;
 
+import exceptionHandling.PukkaException;
 import java.sql.Connection;
 import java.util.Arrays;
 
@@ -21,6 +22,21 @@ public class DataPopulation {
     private boolean clear = false;
     private boolean testData = false;
 
+    /********************************************************
+     *
+     *          Main function to be able to generate data from command line
+     *
+     *          usage: DataPopulation [clear][testData]
+     *
+     *              - clear     optionally clear the database first
+     *              - testData  optionally generate the test data
+     *
+     *
+     * @param par              - command line parameters
+     * @throws PukkaException
+     */
+
+
     public static void main(String[] par) throws PukkaException{
 
         DataPopulation creator = new DataPopulation();
@@ -33,6 +49,13 @@ public class DataPopulation {
         creator.execute();
 
     }
+
+    public DataPopulation() throws PukkaException{
+
+        connection = ConnectionHandler.getConnection("generate data");
+
+    }
+
 
     private DataPopulation withClear() {
 
@@ -49,21 +72,13 @@ public class DataPopulation {
     }
 
 
-    public DataPopulation() throws PukkaException{
-
-        connection = ConnectionHandler.getConnection("generate data");
-
-    }
 
     /**********************************************************************'
      *
      *              Run the data generation given the
      *              set configuration
      *
-     *
-     *
      */
-
 
     private void execute() {
 
@@ -85,7 +100,7 @@ public class DataPopulation {
 
     }
 
-    // TODO: Perm marker here
+    /* Permanent content after this point (Do not remove this line !!!) */
 
     private void clearDatabase( Connection connection) {
 
@@ -107,7 +122,5 @@ public class DataPopulation {
 
     }
 
-
-
-
 }
+

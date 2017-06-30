@@ -6,20 +6,20 @@ import java.util.List;
  *
  *              A service to generate
  *
- *              Single result service will always return only one JSON object "success"
+ *              Single action service will perform a post action
  *
  *
  *
  */
-public class SingleResultService extends GenericService implements ServiceInterface{
+public class SingleActionService extends GenericService implements ServiceInterface{
 
 
-    public SingleResultService(String name, String packagePath) {
+    public SingleActionService(String name, String packagePath) {
 
         this(name, packagePath, true);
     }
 
-    public SingleResultService(String name, String packagePath, boolean addId) {
+    public SingleActionService(String name, String packagePath, boolean addId) {
         this.name = name;
         this.packagePath = packagePath;
         this.packageName = packagePath.replaceAll("/", ".");
@@ -39,7 +39,7 @@ public class SingleResultService extends GenericService implements ServiceInterf
         //java.append(classComment(name, "\n\n" + comment +"\n\n" +getServiceMapping(name, packagePath)));
 
 
-        java.append(classHead(name + "Service", projectName+"Servlet", null, 0));
+        java.append(classHead(name + "Service", projectName +"Servlet", null, 0));
 
         java.append("   private static final boolean Trace = true;\n\n");
         java.append(getMethod(name, loggedIn));
@@ -53,7 +53,7 @@ public class SingleResultService extends GenericService implements ServiceInterf
     private String functionDeclaration( boolean loggedInValidation) {
 
         return
-                "    public JSONObject _"+name+"GetFunction( "+ actualParameters(getParameters)+ (loggedInValidation?"Credentials credentials, ":"") +" Connection connection )throws ServiceUsageException {\n\n" +
+                "    public ActionOutcome _"+name+"Action( "+ actualParameters(getParameters)+ (loggedInValidation?"Credentials credentials, ":"") +" Connection connection )throws ServiceUsageException {\n\n" +
                 "       " + singleLineComment("Manual function ") + "\n\n" +
                 "       throw new ServiceUsageException(\"Not implemented service function\");\n" +
                 "    }\n\n";
@@ -67,34 +67,9 @@ public class SingleResultService extends GenericService implements ServiceInterf
     private String getMethod(String name, boolean loggedInValidation) {
         return "    @Override\n" +
                "    public void doGet(HttpServletRequest req, HttpServletResponse resp)throws IOException {\n\n" +
-                "        try {\n" +
+                "       doPost(req, resp);" +
                 "\n" +
-                "            _log.info(\"In "+name+"Service/GET\");\n" +
-                "\n" +
-                "            Connection connection = ConnectionHandler.getConnection(\"GET "+ name +"\");\n" +
-                "\n" +
-                getLoggedInValidation(loggedInValidation) +
-                getParameterAssignment(getParameters) +
-                //getParameterTrace(getParameters) +
-                "\n" +
-                "            setRespHeaders(resp, 0);\n" +
-                "            resp.setContentType(\"application/json\");\n" +
-                "\n" +
-                "            JSONObject result = _"+ name+"GetFunction( "+ getParameterList(getParameters) + (loggedInValidation?"credentials, ":"") +" connection );\n" +
-                "            _log.debug(\" -- Returning \" + result.toString());\n" +
-                "            resp.getWriter().write(result.toString());\n" +
-                "\n" +
-                "            connection.close();\n\n" +
-                "\n" +
-                "        } catch (PukkaException e) {\n" +
-                "            e.printStackTrace();\n" +
-                "        } catch (ServiceUsageException e) {\n" +
-                "            e.printStackTrace();\n" +
-                "        } catch (Exception e) {\n" +
-                "            e.printStackTrace();\n" +
-                "        }\n" +
-                "\n" +
-                "}\n\n";
+                "   }\n\n";
     }
 
     private String postMethod(String name, boolean loggedInValidation) {
@@ -107,24 +82,30 @@ public class SingleResultService extends GenericService implements ServiceInterf
                 "            Connection connection = ConnectionHandler.getConnection(\"POST "+ name +"\");\n" +
                 "\n" +
                 getLoggedInValidation(loggedInValidation) +
-                getParameterAssignment(getParameters) +
+                getParameterAssignment(postParameters) +
                 //getParameterTrace(getParameters) +
                 "\n" +
                 "            setRespHeaders(resp, 0);\n" +
                 "            resp.setContentType(\"application/json\");\n" +
                 "\n" +
-                "            JSONObject result = _"+ name+"GetFunction( "+ getParameterList(getParameters) + (loggedInValidation?"credentials, ":"") +" connection );\n" +
+                "            ActionOutcome result = _"+ name+"Action( "+ getParameterList(postParameters) + (loggedInValidation?"credentials, ":"") +" connection );\n" +
                 "            _log.debug(\" -- Returning \" + result.toString());\n" +
-                "            resp.getWriter().write(result.toString());\n" +
+                "            resp.getWriter().write(result.toJSON().toString());\n" +
                 "\n" +
                 "            connection.close();\n\n" +
                 "\n" +
                 "        } catch (PukkaException e) {\n" +
-                "            e.printStackTrace();\n" +
+                "            _log.exception( e );\n" +
+                "            resp.getWriter().write(new ActionOutcome(ActionOutcome.Outcome.error, \"Something went wrong. See the logs\").toJSON().toString());\n" +
+                "\n" +
                 "        } catch (ServiceUsageException e) {\n" +
-                "            e.printStackTrace();\n" +
+                "            _log.exception( e );\n" +
+                "            resp.getWriter().write(new ActionOutcome(ActionOutcome.Outcome.error, e.getMessage()).toJSON().toString());\n" +
+                "\n" +
                 "        } catch (Exception e) {\n" +
-                "            e.printStackTrace();\n" +
+                "\n" +
+                "            _log.exception( e );\n" +
+                "            resp.getWriter().write(new ActionOutcome(ActionOutcome.Outcome.error, \"Something went wrong. See the logs\").toJSON().toString());\n" +
                 "        }\n" +
                 "\n" +
                 "}\n\n";
@@ -178,10 +159,10 @@ public class SingleResultService extends GenericService implements ServiceInterf
     }
 
 
-    public ServiceInterface withPostParameter(ParameterInterface parameter) {
+    public ServiceInterface withGetParameter(ParameterInterface parameter) {
 
-        System.out.println(" !WARNING! POST parameter not supported for single action service. Using GET");
-        getParameters.add(parameter);
+        System.out.println(" !WARNING! Get parameter not supported for single action service. Using post");
+        postParameters.add(parameter);
         return this;
 
     }
