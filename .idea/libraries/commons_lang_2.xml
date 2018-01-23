@@ -1,0 +1,17 @@
+<component name="libraryTable">
+  <library name="commons-lang-2">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/../../JavaLibs/commons-lang-2.6" />
+      <root url="file://$PROJECT_DIR$/../../JavaLibs/commons-lang-2.6" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="file://$PROJECT_DIR$/../../JavaLibs/commons-lang-2.6/apidocs" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/../../JavaLibs/commons-lang-2.6" />
+      <root url="file://$PROJECT_DIR$/../../JavaLibs/commons-lang-2.6" />
+    </SOURCES>
+    <jarDirectory url="file://$PROJECT_DIR$/../../JavaLibs/commons-lang-2.6" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/../../JavaLibs/commons-lang-2.6" recursive="false" type="SOURCES" />
+  </library>
+</component>

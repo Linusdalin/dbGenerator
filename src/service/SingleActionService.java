@@ -39,9 +39,11 @@ public class SingleActionService extends GenericService implements ServiceInterf
         //java.append(classComment(name, "\n\n" + comment +"\n\n" +getServiceMapping(name, packagePath)));
 
 
-        java.append(classHead(name + "Service", projectName +"Servlet", null, 0));
+        java.append(classHead(name + "Service", projectName + "Servlet", null, "WebServlet(\"/"+name+"\")", 0));          // Using name as servlet URL
 
-        java.append("   private static final boolean Trace = true;\n\n");
+        //java.append("   private static final boolean Trace = true;\n\n");
+        java.append("   private static Logger _log = new Logger(\""+name+"Service\");\n\n\n");
+
         java.append(getMethod(name, loggedIn));
         java.append(postMethod(name, loggedIn));
 
@@ -93,10 +95,6 @@ public class SingleActionService extends GenericService implements ServiceInterf
                 "            resp.getWriter().write(result.toJSON().toString());\n" +
                 "\n" +
                 "            connection.close();\n\n" +
-                "\n" +
-                "        } catch (PukkaException e) {\n" +
-                "            _log.exception( e );\n" +
-                "            resp.getWriter().write(new ActionOutcome(ActionOutcome.Outcome.error, \"Something went wrong. See the logs\").toJSON().toString());\n" +
                 "\n" +
                 "        } catch (ServiceUsageException e) {\n" +
                 "            _log.exception( e );\n" +

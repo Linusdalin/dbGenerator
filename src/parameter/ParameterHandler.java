@@ -20,7 +20,7 @@ public class ParameterHandler extends JavaCodeComponent {
 
         file.append(packageStatement("commons"));
         file.append(classComment(Name, "desc.."));
-        file.append(classHead(Name, "PropertyGeneral", null, 0));
+        file.append(classHead(Name, "PropertyGeneral", null, null, 0));
 
         for (SystemParameter systemParameter : project.getParameters()) {
 
@@ -56,7 +56,7 @@ public class ParameterHandler extends JavaCodeComponent {
                 "    public String get"+systemParameter.getName()+"(){\n" +
                 "\n" +
                 "        if(_"+ systemParameter.getName()+" == null)\n" +
-                "            _"+systemParameter.getName()+" = System.getenv(\""+systemParameter.getName()+"\");\n" +
+                "            _"+systemParameter.getName()+" = System.getProperty(\""+systemParameter.getName()+"\");\n" +
                 "\n" +
                 "        if(_"+ systemParameter.getName()+" == null)\n" +
                 "            _"+ systemParameter.getName()+" = load"+ systemParameter.getType().getJavaType()+"(\""+ systemParameter.getName()+"\");\n" +

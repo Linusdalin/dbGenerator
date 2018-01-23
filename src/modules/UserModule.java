@@ -33,8 +33,7 @@ public class UserModule extends GenericModule implements ModuleInterface {
             new SingleActionService("Password", "services/waterDrop")
                     .withLoginValidation()
                     .withPostParameter(new MandatoryParameter(DataType.STRING, "password"))
-                    .withInclude("userManagement")
-                    .withInclude("accountManagement")
+                    .withInclude("acs.userManagement")
             ,
 
 

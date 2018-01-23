@@ -23,9 +23,10 @@ public class ScheduleModule extends GenericModule implements ModuleInterface {
 
         new RestService("Schedule", "services/scheduler")
                 //.withLoginValidation()
-                .withInclude("scheduler"),
+                .withInclude("scheduler")
+                .withInclude("report"),
 
-        new RestService("TaskLog", "services/scheduler")
+    new RestService("TaskLog", "services/scheduler")
                 //.withLoginValidation()
                 .withGetParameter(new OptionalParameter(DataType.STRING, "filter"))
                 .withInclude("scheduler")
@@ -42,19 +43,18 @@ public class ScheduleModule extends GenericModule implements ModuleInterface {
                 .withDataElement(new DataElement(DataType.STRING, "cronSchedule"))
                 .withDataElement(new DataElement(DataType.BOOLEAN, "isScheduled"))
                 .withDataElement(new DataElement(DataType.TIMESTAMP, "lastChange"))
+                .withDataElement(new DataElement(DataType.TEXT, "parameters"))
                 .withOrderByColumn("lastChange"),
 
         new DataTable("TaskLog", targetPackage, "Schedule log")
 
-                .withDataElement(new DataElement(DataType.STRING, "taskName"))
-                .withDataElement(new DataElement(DataType.STRING, "source").withComment("The source of the log entry (normally manually or scheduled)"))
-                .withDataElement(new DataElement(DataType.STRING, "action"))
-                .withDataElement(new DataElement(DataType.INT, "level"))
-                .withDataElement(new DataElement(DataType.STRING, "category1"))
-                .withDataElement(new DataElement(DataType.STRING, "category2"))
-                .withDataElement(new DataElement(DataType.TIMESTAMP, "timestamp"))
+                .withDataElement(new DataElement(DataType.STRING, "task"))
+                .withDataElement(new DataElement(DataType.STRING, "source"))
                 .withDataElement(new DataElement(DataType.STRING, "outcome"))
+                .withDataElement(new DataElement(DataType.TIMESTAMP, "timestamp"))
+                .withDataElement(new DataElement(DataType.INT, "duration"))
                 .withDataElement(new DataElement(DataType.LONG_TEXT, "text"))
+                .withDataElement(new DataElement(DataType.TEXT, "parameters"))
                 .withOrderByColumn("timestamp")
 
 

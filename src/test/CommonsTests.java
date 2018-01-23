@@ -1,10 +1,6 @@
 package test;
 
-import commons.CommonTest;
-import commons.Credentials;
 import org.junit.Test;
-
-import static org.hamcrest.CoreMatchers.is;
 
 /**************************************************************************
  *
@@ -12,15 +8,11 @@ import static org.hamcrest.CoreMatchers.is;
  *
  */
 
-public class CommonsTests extends CommonTest{
+public class CommonsTests{
 
     @Test
     public void credentialsTest(){
 
-        Credentials credentials = new Credentials(1, 2, "Admin");
-        assertVerbose("Credentials contains values", credentials.getUser(), is( 1 ));
-        assertVerbose("Credentials contains values", credentials.getOrganisation(), is( 2 ));
-        assertVerbose("Credentials contains role", credentials.getRole(), is( "Admin" ));
     }
 
 }

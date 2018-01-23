@@ -80,22 +80,22 @@ abstract class GenericService extends JavaCodeComponent implements ServiceInterf
 
                 case INT:
                 case REFERENCE:
-                    java.append("            int _"+parameter.getName()+" = (int)get"+restriction+"Long(\""+parameter.getName()+"\", req"+(parameter.getRestriction() == ParameterRestriction.Optional?", -1":"")+", Trace);\n");
+                    java.append("            int _"+parameter.getName()+" = (int)get"+restriction+"Long(\""+parameter.getName()+"\", req"+(parameter.getRestriction() == ParameterRestriction.Optional?", -1":"")+");\n");
                     break;
                 case STRING:
-                    java.append("            String _"+parameter.getName()+" = get"+restriction+"String(\""+parameter.getName()+"\", req, Trace);\n");
+                    java.append("            String _"+parameter.getName()+" = get"+restriction+"String(\""+parameter.getName()+"\", req);\n");
                     break;
                 case TEXT:
-                    java.append("            String _"+parameter.getName()+" = get"+restriction+"String(\""+parameter.getName()+"\", req, Trace);\n");
+                    java.append("            String _"+parameter.getName()+" = get"+restriction+"String(\""+parameter.getName()+"\", req);\n");
                     break;
                 case LONG_TEXT:
-                    java.append("            String _"+parameter.getName()+" = get"+restriction+"String(\""+parameter.getName()+"\", req, Trace);\n");
+                    java.append("            String _"+parameter.getName()+" = get"+restriction+"String(\""+parameter.getName()+"\", req);\n");
                     break;
                 case TIMESTAMP:
-                    java.append("            Timestamp _"+parameter.getName()+" = get"+restriction+"Date(\""+parameter.getName()+"\", req, Trace);\n");
+                    java.append("            Timestamp _"+parameter.getName()+" = get"+restriction+"Date(\""+parameter.getName()+"\", req);\n");
                     break;
                 case BOOLEAN:
-                    java.append("            boolean _"+parameter.getName()+" = get"+restriction+"Boolean(\""+parameter.getName()+"\", req, Trace);\n");
+                    java.append("            boolean _"+parameter.getName()+" = get"+restriction+"Boolean(\""+parameter.getName()+"\", req);\n");
 
                     break;
             }
@@ -132,7 +132,10 @@ abstract class GenericService extends JavaCodeComponent implements ServiceInterf
         includePackages.append("import java.io.IOException;\n");
         includePackages.append("import java.sql.*;\n");
         includePackages.append("import java.util.*;\n\n");
-        includePackages.append("import exceptionHandling.*;\n\n");
+        includePackages.append("import javax.servlet.annotation.WebServlet;\n");
+        includePackages.append("import exceptionHandling.*;\n");
+        includePackages.append("import logger.Logger;\n");
+        includePackages.append("import static commons.Restrictions.*;\n\n");
 
         for (String directory : includeDirectories) {
             includePackages.append("import " + directory.replaceAll("/", ".") + ".*;\n");
