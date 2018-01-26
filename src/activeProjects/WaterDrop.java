@@ -150,6 +150,7 @@ public class WaterDrop extends Project {
 
                     .withDataElement(new DataElement(DataType.TEXT, "name"))
                     .withDataElement(new DataElement(DataType.STRING, "facebook_ad_id").setIndex())
+                    .withDataElement(new DataElement(DataType.STRING, "facebook_creative_id"))
                     .withDataElement(new DataElement(DataType.REFERENCE, "adset", "adset"))
                     .withDataElement(new DataElement(DataType.INT, "creative", "creative"))
                     .withDataElement(new DataElement(DataType.STRING, "creative_type"))
